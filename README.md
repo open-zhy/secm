@@ -89,7 +89,7 @@ secm get <secret-id> -q                 # Quiet mode (only output value)
 ## Building from Source
 
 Requirements:
-- Go 1.16 or later
+- Go 1.21 or later
 - Make
 
 Available make commands:
