@@ -108,6 +108,14 @@ Available make commands:
 - Unique hash-based IDs for secrets
 - Base64 encoded encrypted data in YAML storage
 
+## Todo
+
+- [x] Basics of secrets management: workspace initialization, create secret, list and unfold secret
+- [ ] Add `--profile` option on root level, default to `~/.secm`: this should enable multiple instances or easily resurrect from an existing profile
+- [ ] Support `ed25519` key and more
+- [ ] Enable transfer to another identity: `secm transfer <publicKey>`: it will just create a copy in the workspace of the same secret, only recipient can read the secret
+- [ ] After transfer, enable p2p direct transfer (preferrable implemented as plugin, not apart of the core util)
+
 ## License
 
 MIT License
