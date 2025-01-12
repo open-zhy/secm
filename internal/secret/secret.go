@@ -15,7 +15,6 @@ type Secret struct {
 	Description string    `yaml:"description,omitempty"`
 	Data        string    `yaml:"data"` // base64 encoded encrypted data
 	CreatedAt   time.Time `yaml:"created_at"`
-	UpdatedAt   time.Time `yaml:"updated_at"`
 	Tags        []string  `yaml:"tags,omitempty"`
 	Type        string    `yaml:"type,omitempty"`   // optional type of secret (e.g., "api-key", "certificate")
 	Format      string    `yaml:"format,omitempty"` // original format of the secret (e.g., "text", "json", "binary")
@@ -28,7 +27,6 @@ func New(name string, encryptedData []byte) *Secret {
 		Name:      name,
 		Data:      base64.StdEncoding.EncodeToString(encryptedData),
 		CreatedAt: now,
-		UpdatedAt: now,
 	}
 }
 

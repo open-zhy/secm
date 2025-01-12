@@ -80,7 +80,6 @@ func runGet(cmd *cobra.Command, args []string) error {
 		}
 		fmt.Printf("Format: %s\n", s.Format)
 		fmt.Printf("Created: %s\n", s.CreatedAt.Format("2006-01-02 15:04:05"))
-		fmt.Printf("Updated: %s\n", s.UpdatedAt.Format("2006-01-02 15:04:05"))
 		fmt.Println("\nSecret Value:")
 	}
 
