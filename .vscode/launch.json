@@ -18,7 +18,21 @@
         "--tags",
         "test",
         "-f",
-        "text"
+        "text",
+        // "--profile",
+        // "ed"
+      ]
+    },
+    {
+      "name": "Id",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceRoot}/main.go",
+      "args": [
+        "id",
+        "--profile",
+        "prime521v1"
       ]
     },
     {
@@ -30,7 +44,7 @@
       "args": [
         "generate",
         "-t",
-        "p384",
+        "p256",
         "--size",
         "2048",
       ]

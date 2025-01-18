@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/open-zhy/secm/internal/crypto"
+	"github.com/open-zhy/secm/internal/id"
 	"github.com/open-zhy/secm/internal/secret"
 	"github.com/open-zhy/secm/internal/workspace"
 	"github.com/spf13/cobra"
@@ -37,7 +38,7 @@ func runGet(cmd *cobra.Command, args []string) error {
 	secretID := args[0]
 
 	// Load workspace
-	ws, err := workspace.Load()
+	ws, err := workspace.Load(profile)
 	if err != nil {
 		return fmt.Errorf("failed to load workspace: %w", err)
 	}
@@ -55,14 +56,13 @@ func runGet(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to decode secret data: %w", err)
 	}
 
-	// Load the private key
-	privateKey, err := crypto.LoadPrivateKey(ws.KeyPath)
+	identity, err := id.LoadKeyFile(ws.KeyPath)
 	if err != nil {
-		return fmt.Errorf("failed to load identity key: %w", err)
+		return fmt.Errorf("failed to load identity: %w", err)
 	}
 
 	// Decrypt the data
-	decryptedData, err := crypto.DecryptData(privateKey, encryptedData)
+	decryptedData, err := crypto.DecryptData(identity, encryptedData)
 	if err != nil {
 		return fmt.Errorf("failed to decrypt secret: %w", err)
 	}

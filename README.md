@@ -44,6 +44,9 @@ Before using secm, initialize the workspace:
 secm init
 ```
 
+You can add `--profile <profile>` option (default value is `default`). This will allow multiple workspaces on same machine. This option is usable overall all subcommands, which will just scope the action to specified workspace.
+
+
 This creates the `.secm` directory in your home folder and generates an RSA identity key.
 
 ### Create a Secret
@@ -89,7 +92,7 @@ secm get <secret-id> -q                 # Quiet mode (only output value)
 ## Building from Source
 
 Requirements:
-- Go 1.21 or later
+- Go `1.21` or later
 - Make
 
 Available make commands:
@@ -103,18 +106,19 @@ Available make commands:
 
 ## Security
 
-- Uses hybrid encryption (RSA for key exchange, AES for data)
-- Secure file permissions (0600 for keys, 0700 for directories)
+- Uses hybrid encryption (`RSA`, `ECDH` for key exchange, `AES-128` for data)
+- Secure file permissions (`0600` for keys, `0700` for directories)
 - Unique hash-based IDs for secrets
 - Base64 encoded encrypted data in YAML storage
 
 ## Todo
 
 - [x] Basics of secrets management: workspace initialization, create secret, list and unfold secret
-- [ ] Add `--profile` option on root level, default to `~/.secm`: this should enable multiple instances or easily resurrect from an existing profile
-- [ ] Support `ed25519` key and eventually more
+- [x] Add `--profile` option on root level, default to `~/.secm`: this should enable multiple instances or easily resurrect from an existing profile
+- [x] Support `ed25519` key and eventually more
 - [ ] Enable transfer to another identity: `secm transfer <publicKey>`: it will just create a copy in the workspace of the same secret, only recipient can read the secret
 - [ ] After transfer, enable p2p direct transfer (preferrable implemented as plugin, not apart of the core util)
+- [ ] Better document codes and the workflows
 
 ## License
 

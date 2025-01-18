@@ -1,14 +1,14 @@
 package cmd
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/open-zhy/secm/internal/crypto"
+	"github.com/open-zhy/secm/internal/id"
 	"github.com/open-zhy/secm/internal/secret"
 	"github.com/open-zhy/secm/internal/workspace"
 	"github.com/spf13/cobra"
@@ -46,7 +46,7 @@ func runCreate(cmd *cobra.Command, args []string) error {
 	filePath := args[0]
 
 	// Load workspace
-	ws, err := workspace.Load()
+	ws, err := workspace.Load(profile)
 	if err != nil {
 		return fmt.Errorf("failed to load workspace: %w", err)
 	}
@@ -57,18 +57,16 @@ func runCreate(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to read input file: %w", err)
 	}
 
-	// Calculate file hash
-	hash := sha256.Sum256(data)
-	hashStr := hex.EncodeToString(hash[:])
+	// create uuid of the file
+	secretId := uuid.NewSHA1(uuid.NameSpaceDNS, data).String()
 
-	// Load the private key
-	privateKey, err := crypto.LoadPrivateKey(ws.KeyPath)
+	identity, err := id.LoadKeyFile(ws.KeyPath)
 	if err != nil {
-		return fmt.Errorf("failed to load identity key: %w", err)
+		return fmt.Errorf("failed to load identity: %w", err)
 	}
 
 	// Encrypt the data using hybrid encryption
-	encrypted, err := crypto.EncryptData(&privateKey.PublicKey, data)
+	encrypted, err := crypto.EncryptData(identity.PublicKey(), data)
 	if err != nil {
 		return fmt.Errorf("failed to encrypt data: %w", err)
 	}
@@ -87,12 +85,12 @@ func runCreate(cmd *cobra.Command, args []string) error {
 	}
 
 	// Save the secret as YAML
-	secretPath := filepath.Join(ws.SecretsDir, hashStr+".yml")
+	secretPath := filepath.Join(ws.SecretsDir, secretId+".yml")
 	if err := s.Save(secretPath); err != nil {
 		return fmt.Errorf("failed to save secret: %w", err)
 	}
 
-	fmt.Printf("Created secret '%s' with ID: %s\n", secretName, hashStr)
+	fmt.Printf("Created secret '%s' with ID: %s\n", secretName, secretId)
 	fmt.Printf("Stored at: %s\n", secretPath)
 	return nil
 }

@@ -3,13 +3,14 @@ package crypto
 import (
 	"crypto/aes"
 	"crypto/cipher"
-	"crypto/rsa"
 	"encoding/binary"
 	"fmt"
+
+	"github.com/open-zhy/secm/internal/id"
 )
 
 // DecryptData decrypts data that was encrypted using hybrid encryption
-func DecryptData(privateKey *rsa.PrivateKey, encryptedData []byte) ([]byte, error) {
+func DecryptData(decrypter id.Decrypter, encryptedData []byte) ([]byte, error) {
 	if len(encryptedData) < 4 {
 		return nil, fmt.Errorf("invalid encrypted data format")
 	}
@@ -24,7 +25,7 @@ func DecryptData(privateKey *rsa.PrivateKey, encryptedData []byte) ([]byte, erro
 	encryptedKey := encryptedData[4 : 4+keyLen]
 
 	// Decrypt the AES key using RSA
-	aesKey, err := rsa.DecryptPKCS1v15(nil, privateKey, encryptedKey)
+	aesKey, err := decrypter.Decrypt(encryptedKey)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decrypt AES key: %w", err)
 	}

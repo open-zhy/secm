@@ -4,14 +4,15 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
-	"crypto/rsa"
 	"fmt"
 	"io"
+
+	"github.com/open-zhy/secm/internal/id"
 )
 
 // EncryptData encrypts data using hybrid encryption (RSA + AES)
 // It generates a random AES key, encrypts it with RSA, and uses it to encrypt the data
-func EncryptData(publicKey *rsa.PublicKey, data []byte) ([]byte, error) {
+func EncryptData(publicKeyWrapper id.Encrypter, data []byte) ([]byte, error) {
 	// Generate random AES key
 	aesKey := make([]byte, 32) // 256-bit key
 	if _, err := io.ReadFull(rand.Reader, aesKey); err != nil {
@@ -19,7 +20,7 @@ func EncryptData(publicKey *rsa.PublicKey, data []byte) ([]byte, error) {
 	}
 
 	// Encrypt AES key with RSA
-	encryptedKey, err := rsa.EncryptPKCS1v15(rand.Reader, publicKey, aesKey)
+	encryptedKey, err := publicKeyWrapper.Encrypt(data, aesKey)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encrypt AES key: %w", err)
 	}

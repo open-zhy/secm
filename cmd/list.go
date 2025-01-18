@@ -31,7 +31,7 @@ func init() {
 
 func runList(cmd *cobra.Command, args []string) error {
 	// Load workspace
-	ws, err := workspace.Load()
+	ws, err := workspace.Load(profile)
 	if err != nil {
 		return fmt.Errorf("failed to load workspace: %w", err)
 	}
@@ -59,7 +59,7 @@ func runList(cmd *cobra.Command, args []string) error {
 
 	// Calculate column widths
 	widths := map[string]int{
-		"ID":          64,
+		"ID":          36,
 		"Name":        30,
 		"Type":        15,
 		"Description": 30,

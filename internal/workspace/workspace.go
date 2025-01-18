@@ -20,16 +20,21 @@ type Workspace struct {
 }
 
 // Initialize creates the workspace directory structure
-func Initialize() (*Workspace, error) {
+func Initialize(profile string) (*Workspace, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get home directory: %w", err)
 	}
 
 	ws := &Workspace{
-		RootDir:    filepath.Join(homeDir, DirName),
-		SecretsDir: filepath.Join(homeDir, DirName, SecretsDir),
-		KeyPath:    filepath.Join(homeDir, DirName, IdentityKey),
+		RootDir:    filepath.Join(homeDir, DirName, profile),
+		SecretsDir: filepath.Join(homeDir, DirName, profile, SecretsDir),
+		KeyPath:    filepath.Join(homeDir, DirName, profile, IdentityKey),
+	}
+
+	// Check if workspace exists, if so we don't override. instead we throw error
+	if _, err := os.Stat(ws.KeyPath); err == nil {
+		return nil, fmt.Errorf("workspace already initialized, use \"--profile <new-profile>\" to initialize a new workspace")
 	}
 
 	// Create root directory
@@ -46,16 +51,16 @@ func Initialize() (*Workspace, error) {
 }
 
 // Load returns an existing workspace configuration
-func Load() (*Workspace, error) {
+func Load(profile string) (*Workspace, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get home directory: %w", err)
 	}
 
 	ws := &Workspace{
-		RootDir:    filepath.Join(homeDir, DirName),
-		SecretsDir: filepath.Join(homeDir, DirName, SecretsDir),
-		KeyPath:    filepath.Join(homeDir, DirName, IdentityKey),
+		RootDir:    filepath.Join(homeDir, DirName, profile),
+		SecretsDir: filepath.Join(homeDir, DirName, profile, SecretsDir),
+		KeyPath:    filepath.Join(homeDir, DirName, profile, IdentityKey),
 	}
 
 	// Check if workspace exists
