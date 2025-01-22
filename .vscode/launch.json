@@ -32,7 +32,9 @@
       "args": [
         "id",
         "--profile",
-        "prime521v1"
+        "prime521v1",
+        "--plugins-dir",
+        "${cwd}/build/plugins",
       ]
     },
     {
@@ -45,8 +47,8 @@
         "generate",
         "-t",
         "p256",
-        "--size",
-        "2048",
+        "--profile",
+        "ed",
       ]
     }
   ]

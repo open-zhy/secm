@@ -15,13 +15,13 @@ ARCHITECTURES=amd64 arm64
 GOFMT=gofmt
 GOTEST=go test
 
-.PHONY: all build clean test fmt build-all
+.PHONY: all build clean test fmt build-all build-plugins
 
 # Default target
 all: clean build
 
 # Build for current platform
-build:
+build: build-plugins
 	@echo "Building ${BINARY_NAME}..."
 	@go build ${GOFLAGS} ${LDFLAGS} -o ${BUILD_DIR}/${BINARY_NAME} ${MAIN_PACKAGE}
 
@@ -64,6 +64,12 @@ fmt:
 install: build
 	@echo "Installing ${BINARY_NAME}..."
 	@cp ${BUILD_DIR}/${BINARY_NAME} ${GOPATH}/bin/
+
+build-hello:
+	@echo "Building Hello plugin..."
+	@go build ${GOFLAGS} ${LDFLAGS} -buildmode=plugin -o ${BUILD_DIR}/plugins/hello.so plugins/hello/hello.go
+
+build-plugins: build-hello
 
 # Show help
 help:
