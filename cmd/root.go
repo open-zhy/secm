@@ -28,12 +28,13 @@ It provides encryption and safe storage of sensitive information.`,
 			}
 		}
 	},
+	Version: Version,
 }
 
 func init() {
 	executionDir, _ := os.Getwd()
 	rootCmd.PersistentFlags().StringVarP(&profile, "profile", "p", "default", "Optional profile name, specifiy the workspace related to the profile")
-	rootCmd.PersistentFlags().StringVarP(&pluginsDir, "plugins-dir", "r", filepath.Join(executionDir, "plugins"), "Directory where plugins are stored")
+	rootCmd.PersistentFlags().StringVarP(&pluginsDir, "plugins-dir", "r", filepath.Join(executionDir, "~/.secm/plugins"), "Directory where plugins are stored")
 }
 
 func Execute() {

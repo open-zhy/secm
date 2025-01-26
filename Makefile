@@ -1,10 +1,12 @@
 BINARY_NAME=secm
-VERSION?=0.1.0
 BUILD_DIR=build
 MAIN_PACKAGE=.
+BUILD_NUM=$(shell date +'%Y%m%d%H%M%S')
 
 # Go build flags
-LDFLAGS=-ldflags "-X main.Version=${VERSION}"
+VERSION=$(shell git describe --tags --always)
+VERSION?=0.1.0
+LDFLAGS=-ldflags "-X github.com/open-zhy/secm/cmd.Version=${VERSION} -X github.com/open-zhy/secm/cmd.Build=${BUILD_NUM}"
 GOFLAGS=-trimpath
 
 # Supported platforms
