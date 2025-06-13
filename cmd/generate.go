@@ -3,7 +3,7 @@ package cmd
 import (
 	"os"
 
-	"github.com/open-zhy/secm/internal/id"
+	"github.com/open-zhy/secm/pkg/id"
 	"github.com/spf13/cobra"
 )
 

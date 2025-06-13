@@ -1,0 +1,34 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build-main",
+      "type": "shell",
+      "command": "go build -gcflags \"all=-N -l\" -x -v -o ${workspaceRoot}/build/secm main.go",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "build-p2p-plugin-debug",
+      "type": "shell",
+      "command": "go build -gcflags \"all=-N -l\" -x -v -buildmode=plugin -o ${userHome}/.secm/plugins/p2p-transfer.so plugins/p2p-transfer/main.go",
+      "dependsOn": [
+        "build-main"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    }
+  ]
+}

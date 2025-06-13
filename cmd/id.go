@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/open-zhy/secm/internal/id"
-	"github.com/open-zhy/secm/internal/workspace"
+	"github.com/open-zhy/secm/pkg/id"
+	"github.com/open-zhy/secm/pkg/workspace"
 	"github.com/spf13/cobra"
 )
 

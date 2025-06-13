@@ -6,8 +6,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/open-zhy/secm/internal/secret"
-	"github.com/open-zhy/secm/internal/workspace"
+	"github.com/open-zhy/secm/pkg/errors"
+	"github.com/open-zhy/secm/pkg/screen"
+	"github.com/open-zhy/secm/pkg/secret"
+	"github.com/open-zhy/secm/pkg/workspace"
 	"github.com/spf13/cobra"
 )
 
@@ -33,17 +35,17 @@ func runList(cmd *cobra.Command, args []string) error {
 	// Load workspace
 	ws, err := workspace.Load(profile)
 	if err != nil {
-		return fmt.Errorf("failed to load workspace: %w", err)
+		return errors.Wrapf(err, "failed to load workspace")
 	}
 
 	// Read secrets directory
 	entries, err := os.ReadDir(ws.SecretsDir)
 	if err != nil {
-		return fmt.Errorf("failed to read secrets directory: %w", err)
+		return errors.Wrapf(err, "failed to read secrets directory")
 	}
 
 	if len(entries) == 0 {
-		fmt.Println("No secrets found")
+		screen.Println("No secrets found")
 		return nil
 	}
 
@@ -77,13 +79,13 @@ func runList(cmd *cobra.Command, args []string) error {
 	}
 	format += fmt.Sprintf("  %%-%ds\n", widths["Created At"])
 
-	fmt.Println("Available secrets:")
+	screen.Println("Available secrets:")
 	headerInterface := make([]interface{}, len(headers))
 	for i, v := range headers {
 		headerInterface[i] = v
 	}
-	fmt.Printf(format, headerInterface...)
-	fmt.Println(strings.Repeat("-", calculateLineWidth(widths, showDesc, showTags)))
+	screen.Printf(format, headerInterface...)
+	screen.Println(strings.Repeat("-", calculateLineWidth(widths, showDesc, showTags)))
 
 	// List secrets
 	for _, entry := range entries {
@@ -112,7 +114,7 @@ func runList(cmd *cobra.Command, args []string) error {
 		}
 		values = append(values, s.CreatedAt.Format("2006-01-02 15:04:05"))
 
-		fmt.Printf(format, values...)
+		screen.Printf(format, values...)
 	}
 
 	return nil

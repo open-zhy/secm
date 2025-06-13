@@ -6,7 +6,7 @@ import (
 	"encoding/binary"
 	"fmt"
 
-	"github.com/open-zhy/secm/internal/id"
+	"github.com/open-zhy/secm/pkg/id"
 )
 
 // DecryptData decrypts data that was encrypted using hybrid encryption

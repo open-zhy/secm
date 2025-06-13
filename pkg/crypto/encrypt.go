@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/open-zhy/secm/internal/id"
+	"github.com/open-zhy/secm/pkg/id"
 )
 
 // EncryptData encrypts data using hybrid encryption (RSA + AES)

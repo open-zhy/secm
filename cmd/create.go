@@ -1,16 +1,17 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/google/uuid"
-	"github.com/open-zhy/secm/internal/crypto"
-	"github.com/open-zhy/secm/internal/id"
-	"github.com/open-zhy/secm/internal/secret"
-	"github.com/open-zhy/secm/internal/workspace"
+	"github.com/open-zhy/secm/pkg/crypto"
+	"github.com/open-zhy/secm/pkg/errors"
+	"github.com/open-zhy/secm/pkg/id"
+	"github.com/open-zhy/secm/pkg/screen"
+	"github.com/open-zhy/secm/pkg/secret"
+	"github.com/open-zhy/secm/pkg/workspace"
 	"github.com/spf13/cobra"
 )
 
@@ -48,13 +49,13 @@ func runCreate(cmd *cobra.Command, args []string) error {
 	// Load workspace
 	ws, err := workspace.Load(profile)
 	if err != nil {
-		return fmt.Errorf("failed to load workspace: %w", err)
+		return errors.Wrapf(err, "failed to load workspace")
 	}
 
 	// Read the input file
 	data, err := os.ReadFile(filePath)
 	if err != nil {
-		return fmt.Errorf("failed to read input file: %w", err)
+		return errors.Wrapf(err, "failed to read input file")
 	}
 
 	// create uuid of the file
@@ -62,13 +63,13 @@ func runCreate(cmd *cobra.Command, args []string) error {
 
 	identity, err := id.LoadKeyFile(ws.KeyPath)
 	if err != nil {
-		return fmt.Errorf("failed to load identity: %w", err)
+		return errors.Wrapf(err, "failed to load identity")
 	}
 
 	// Encrypt the data using hybrid encryption
 	encrypted, err := crypto.EncryptData(identity.PublicKey(), data)
 	if err != nil {
-		return fmt.Errorf("failed to encrypt data: %w", err)
+		return errors.Wrapf(err, "failed to encrypt data")
 	}
 
 	// Create secret with metadata
@@ -87,10 +88,10 @@ func runCreate(cmd *cobra.Command, args []string) error {
 	// Save the secret as YAML
 	secretPath := filepath.Join(ws.SecretsDir, secretId+".yml")
 	if err := s.Save(secretPath); err != nil {
-		return fmt.Errorf("failed to save secret: %w", err)
+		return errors.Wrapf(err, "failed to save secret")
 	}
 
-	fmt.Printf("Created secret '%s' with ID: %s\n", secretName, secretId)
-	fmt.Printf("Stored at: %s\n", secretPath)
+	screen.Successf("Created secret '%s' with ID: %s\n", secretName, secretId)
+	screen.Successf("Stored at: %s\n", secretPath)
 	return nil
 }

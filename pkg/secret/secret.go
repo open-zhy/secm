@@ -2,7 +2,9 @@ package secret
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"time"
 
@@ -60,6 +62,27 @@ func Load(path string) (*Secret, error) {
 }
 
 // GetData returns the decoded encrypted data
-func (s *Secret) GetData() ([]byte, error) {
+func (s *Secret) Raw() ([]byte, error) {
 	return base64.StdEncoding.DecodeString(s.Data)
+}
+
+// Read implements io.Reader interface for the secret
+// This allows the entire secret (including metadata) to be streamed
+func (s *Secret) Read(p []byte) (n int, err error) {
+	// Marshal the entire secret struct to JSON
+	data, err := json.Marshal(s)
+	if err != nil {
+		return 0, fmt.Errorf("failed to marshal secret: %w", err)
+	}
+
+	if len(data) == 0 {
+		return 0, io.EOF
+	}
+
+	n = copy(p, data)
+	// If we copied everything, return EOF
+	if n == len(data) {
+		return n, io.EOF
+	}
+	return n, nil
 }

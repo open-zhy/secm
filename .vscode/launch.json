@@ -19,8 +19,22 @@
         "test",
         "-f",
         "text",
-        // "--profile",
-        // "ed"
+        "--profile",
+        "prime521v1"
+      ]
+    },
+    {
+      "name": "Get secret",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceRoot}/main.go",
+      "args": [
+        "get",
+        "a4e3f43e-b9d3-5fc9-b439-741ce0cdf261",
+        "-m",
+        "--profile",
+        "p384"
       ]
     },
     {
@@ -32,7 +46,9 @@
       "args": [
         "id",
         "--profile",
-        "prime521v1"
+        "prime521v1",
+        "--plugins-dir",
+        "${cwd}/build/plugins",
       ]
     },
     {
@@ -45,8 +61,57 @@
         "generate",
         "-t",
         "p256",
-        "--size",
-        "2048",
+        "--profile",
+        "ed",
+      ]
+    },
+    {
+      "name": "Transfer (p2p): initiator",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceRoot}/main.go",
+      "args": [
+        "transfer",
+        "8b7a33ca-dd30-5870-a26e-fc2ee47b96cc",
+        "--port",
+        "50001",
+        "--timeout",
+        "1h"
+      ],
+      "stopOnEntry": false,
+      "env": {
+        //"GODEBUG": "gctrace=1"
+      },
+      "showLog": true,
+      //"trace": "verbose",
+      "logOutput": "rpc",
+      "dlvFlags": [
+        "--check-go-version=false"
+      ]
+    },
+    {
+      "name": "Transfer (p2p): peer",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceRoot}/main.go",
+      "args": [
+        "--profile",
+        "ed", // other profile than default
+        "transfer",
+        "--peer",
+        "/ip4/127.0.0.1/tcp/50001/p2p/12D3KooWEdtw7K7aw3bCbF7vtEfMDYf7qyCfRUCkWH9XGvdvUX79"
+      ],
+      "stopOnEntry": false,
+      "env": {
+        //"GODEBUG": "gctrace=1"
+      },
+      "showLog": true,
+      //"trace": "verbose",
+      "logOutput": "rpc",
+      "dlvFlags": [
+        "--check-go-version=false"
       ]
     }
   ]

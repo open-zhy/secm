@@ -5,8 +5,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/open-zhy/secm/internal/id"
-	"github.com/open-zhy/secm/internal/workspace"
+	"github.com/open-zhy/secm/pkg/id"
+	"github.com/open-zhy/secm/pkg/screen"
+	"github.com/open-zhy/secm/pkg/workspace"
 	"github.com/spf13/cobra"
 )
 
@@ -52,7 +53,7 @@ func runInit(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to write key file: %w", err)
 	}
 
-	fmt.Printf("Initialized secm workspace at %s\n", ws.RootDir)
-	fmt.Printf("Generated %s identity key at %s\n", strings.ToUpper(keyType), ws.KeyPath)
+	screen.Printf("Initialized secm workspace at %s\n", ws.RootDir)
+	screen.Printf("Generated %s identity key at %s\n", strings.ToUpper(keyType), ws.KeyPath)
 	return nil
 }

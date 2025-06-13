@@ -5,10 +5,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/open-zhy/secm/internal/crypto"
-	"github.com/open-zhy/secm/internal/id"
-	"github.com/open-zhy/secm/internal/secret"
-	"github.com/open-zhy/secm/internal/workspace"
+	"github.com/open-zhy/secm/pkg/screen"
+	"github.com/open-zhy/secm/pkg/secret"
+	"github.com/open-zhy/secm/pkg/workspace"
 	"github.com/spf13/cobra"
 )
 
@@ -50,37 +49,26 @@ func runGet(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to load secret: %w", err)
 	}
 
-	// Get encrypted data
-	encryptedData, err := s.GetData()
-	if err != nil {
-		return fmt.Errorf("failed to decode secret data: %w", err)
-	}
-
-	identity, err := id.LoadKeyFile(ws.KeyPath)
-	if err != nil {
-		return fmt.Errorf("failed to load identity: %w", err)
-	}
-
 	// Decrypt the data
-	decryptedData, err := crypto.DecryptData(identity, encryptedData)
+	decryptedData, err := ws.DecryptSecret(s)
 	if err != nil {
 		return fmt.Errorf("failed to decrypt secret: %w", err)
 	}
 
 	if showMeta {
-		fmt.Printf("Name: %s\n", s.Name)
+		screen.Printf("Name: %s\n", s.Name)
 		if s.Description != "" {
-			fmt.Printf("Description: %s\n", s.Description)
+			screen.Printf("Description: %s\n", s.Description)
 		}
 		if s.Type != "" {
-			fmt.Printf("Type: %s\n", s.Type)
+			screen.Printf("Type: %s\n", s.Type)
 		}
 		if len(s.Tags) > 0 {
-			fmt.Printf("Tags: %s\n", strings.Join(s.Tags, ", "))
+			screen.Printf("Tags: %s\n", strings.Join(s.Tags, ", "))
 		}
-		fmt.Printf("Format: %s\n", s.Format)
-		fmt.Printf("Created: %s\n", s.CreatedAt.Format("2006-01-02 15:04:05"))
-		fmt.Println("\nSecret Value:")
+		screen.Printf("Format: %s\n", s.Format)
+		screen.Printf("Created: %s\n", s.CreatedAt.Format("2006-01-02 15:04:05"))
+		screen.Println("\nSecret Value:")
 	}
 
 	// Handle output
@@ -89,13 +77,13 @@ func runGet(cmd *cobra.Command, args []string) error {
 			return fmt.Errorf("failed to write output file: %w", err)
 		}
 		if !quiet {
-			fmt.Printf("Secret written to: %s\n", outputFile)
+			screen.Printf("Secret written to: %s\n", outputFile)
 		}
 	} else if !quiet {
-		fmt.Println(string(decryptedData))
+		screen.Println(string(decryptedData))
 	} else {
 		// In quiet mode, just print the value without newline
-		fmt.Print(string(decryptedData))
+		screen.Printf(string(decryptedData))
 	}
 
 	return nil

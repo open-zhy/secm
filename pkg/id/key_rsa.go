@@ -5,8 +5,9 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
-	"fmt"
 	"io"
+
+	"github.com/open-zhy/secm/pkg/errors"
 )
 
 type RSAPublicKey struct {
@@ -21,7 +22,7 @@ func (kp *RSAPublicKey) Encode(dst io.Writer) error {
 	}
 
 	if err := pem.Encode(dst, pemBlock); err != nil {
-		return fmt.Errorf("failed to write public key: %w", err)
+		return errors.Wrapf(err, "failed to write public key")
 	}
 
 	return nil
@@ -29,6 +30,10 @@ func (kp *RSAPublicKey) Encode(dst io.Writer) error {
 
 func (kp *RSAPublicKey) Encrypt(plaintext []byte, key []byte) ([]byte, error) {
 	return rsa.EncryptPKCS1v15(rand.Reader, kp.pub, key)
+}
+
+func (kp *RSAPublicKey) Bytes() []byte {
+	return kp.pub.N.Bytes()
 }
 
 type RSAIdKey struct {

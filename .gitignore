@@ -33,3 +33,5 @@ Thumbs.db
 # Debug files
 debug
 __debug_bin
+__debug_*
+tmp.*.go

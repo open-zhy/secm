@@ -5,7 +5,8 @@ import (
 	"crypto/ecdh"
 	"crypto/rand"
 	"crypto/rsa"
-	"fmt"
+
+	"github.com/open-zhy/secm/pkg/errors"
 )
 
 type GenerateKeyOpts struct {
@@ -51,7 +52,7 @@ func GenerateKey(opt GenerateKeyOpts) (identity KeyPackageIdentity, err error) {
 		}
 		identity = createECDHIdKey(pk.(*ecdh.PrivateKey))
 	default:
-		return nil, fmt.Errorf("unsupported key type: %s", opt.Type)
+		return nil, errors.New("unsupported key type: %s", opt.Type)
 	}
 
 	return identity, nil

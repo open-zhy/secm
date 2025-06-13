@@ -4,6 +4,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/ecdh"
+	"crypto/ecdsa"
 	"crypto/rand"
 	"crypto/x509"
 	"encoding/pem"
@@ -33,6 +34,22 @@ func (kp *ECPublicKey) Encode(dst io.Writer) error {
 	return nil
 }
 
+func cutKeyLength(pubKey []byte) []byte {
+	if len(pubKey) < 16 {
+		return nil
+	}
+
+	if len(pubKey) > 32 {
+		return pubKey[:32]
+	}
+
+	if len(pubKey) > 24 {
+		return pubKey[:24]
+	}
+
+	return pubKey[:16]
+}
+
 func (kp *ECPublicKey) Encrypt(plaintext []byte, key []byte) ([]byte, error) {
 	// Generate ephemeral key pair
 	curve := kp.pub.Curve()
@@ -48,7 +65,7 @@ func (kp *ECPublicKey) Encrypt(plaintext []byte, key []byte) ([]byte, error) {
 	}
 
 	// Create AES cipher from shared secret
-	block, err := aes.NewCipher(sharedSecret)
+	block, err := aes.NewCipher(cutKeyLength(sharedSecret))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create AES cipher: %w", err)
 	}
@@ -94,6 +111,10 @@ func (kp *ECPublicKey) Encrypt(plaintext []byte, key []byte) ([]byte, error) {
 	return result, nil
 }
 
+func (kp *ECPublicKey) Bytes() []byte {
+	return kp.pub.Bytes()
+}
+
 type ECDHIdKey struct {
 	pk *ecdh.PrivateKey
 }
@@ -135,9 +156,26 @@ func (k *ECDHIdKey) Decrypt(ciphertext []byte) ([]byte, error) {
 		return nil, fmt.Errorf("failed to parse ephemeral public key: %w", err)
 	}
 
-	ephemeralECDH, ok := ephemeralPubKey.(*ecdh.PublicKey)
-	if !ok {
-		return nil, fmt.Errorf("invalid ephemeral key type")
+	var ephemeralECDH *ecdh.PublicKey
+	switch ephemeralPubKey.(type) {
+	case *ecdsa.PublicKey:
+		ecdsaKey, ok := ephemeralPubKey.(*ecdsa.PublicKey)
+		if !ok {
+			return nil, fmt.Errorf("invalid ephemeral key type")
+		}
+		ecdhKey, err := convertECDSAPublicKeyToECDH(ecdsaKey)
+		if err != nil {
+			return nil, fmt.Errorf("failed to convert ECDSA public key to ECDH: %w", err)
+		}
+		ephemeralECDH = ecdhKey
+	case *ecdh.PublicKey:
+		ecdhKey, ok := ephemeralPubKey.(*ecdh.PublicKey)
+		if !ok {
+			return nil, fmt.Errorf("invalid ephemeral key type")
+		}
+		ephemeralECDH = ecdhKey
+	default:
+		return nil, fmt.Errorf("unsupported ephemeral public key type")
 	}
 
 	// Perform ECDH to get shared secret
@@ -147,7 +185,7 @@ func (k *ECDHIdKey) Decrypt(ciphertext []byte) ([]byte, error) {
 	}
 
 	// Create AES cipher from shared secret
-	block, err := aes.NewCipher(sharedSecret)
+	block, err := aes.NewCipher(cutKeyLength(sharedSecret))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create AES cipher: %w", err)
 	}

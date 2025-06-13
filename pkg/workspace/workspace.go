@@ -1,9 +1,14 @@
 package workspace
 
 import (
+	"encoding/base64"
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/open-zhy/secm/pkg/crypto"
+	"github.com/open-zhy/secm/pkg/id"
+	"github.com/open-zhy/secm/pkg/secret"
 )
 
 const (
@@ -74,4 +79,41 @@ func Load(profile string) (*Workspace, error) {
 // SecretPath returns the full path for a secret with the given ID
 func (w *Workspace) SecretPath(id string) string {
 	return filepath.Join(w.SecretsDir, id)
+}
+
+func (w *Workspace) DecryptSecret(s *secret.Secret) ([]byte, error) {
+	raw, err := s.Raw()
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode secret data: %w", err)
+	}
+
+	identity, err := id.LoadKeyFile(w.KeyPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load identity: %w", err)
+	}
+
+	return crypto.DecryptData(identity, raw)
+}
+
+func (w *Workspace) LoadKey() (id.KeyPackageIdentity, error) {
+	identity, err := id.LoadKeyFile(w.KeyPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load identity key: %w", err)
+	}
+	return identity, nil
+}
+
+func (w *Workspace) Grant(grantee id.Encrypter, s *secret.Secret) (*secret.Secret, error) {
+	cleartext, err := w.DecryptSecret(s)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decrypt secret: %w", err)
+	}
+	encrypted, err := crypto.EncryptData(grantee, cleartext)
+	if err != nil {
+		return nil, fmt.Errorf("failed to encrypt secret for grantee: %w", err)
+	}
+
+	s.Data = base64.StdEncoding.EncodeToString(encrypted)
+
+	return s, nil
 }

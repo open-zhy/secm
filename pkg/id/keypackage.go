@@ -19,6 +19,7 @@ type EncodableKey interface {
 type PublicKey interface {
 	EncodableKey
 	Encrypter
+	Bytes() []byte
 }
 
 type KeyPackageIdentity interface {
